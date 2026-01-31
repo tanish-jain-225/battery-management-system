@@ -20,7 +20,7 @@ CORS(app, resources={r"/*": {"origins": CORS_ORIGINS}})
 # Path setup to find files in the same directory as app.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(
-    BASE_DIR, 'EV_Battery_Charging_TR_Dataset_with_Notes.csv')
+    BASE_DIR, 'EV_Battery_Charging_5000_Extended.csv')
 
 # Load model artifacts
 model = joblib.load(os.path.join(BASE_DIR, 'battery_model.pkl'))

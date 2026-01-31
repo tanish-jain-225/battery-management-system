@@ -56,7 +56,7 @@ def get_sensor_data():
     Returns latest 100 records by default
     """
     try:
-        # Fetch latest 100 sensor readings from MongoDB
+        # Fetch latest 100 sensor readings from MongoDB - 100 at a time and keeps on updating with latest data
         data = list(sensor_collection.find().sort('timestamp', -1).limit(100))
 
         # Convert ObjectId to string and format timestamps

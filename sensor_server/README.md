@@ -504,4 +504,4 @@ Part of the EV Battery Monitoring System project.
 **Status**: Production Ready ✅  
 **Mode**: Dual (Local + Vercel Cron)  
 **Last Updated**: January 2026  
-**Data Rate**: 60 readings/minute
+**Data Rate**: 60 readings/minute 

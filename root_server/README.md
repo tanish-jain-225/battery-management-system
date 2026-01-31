@@ -518,4 +518,4 @@ Part of the EV Battery Monitoring System project.
 
 **Status**: Production Ready ✅  
 **Last Updated**: January 2026  
-**Dashboard URL**: Access via deployment or `http://localhost:5000`
+**Dashboard URL**: Access via deployment or `http://localhost:5000` 

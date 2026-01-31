@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+venv/
+.env
+
+.DS_Store
+*.log
+.ipynb_checkpoints/
+*.sqlite3
+*.h5
+*.ckpt
+*.tfrecord
+*.pth
+.idea/
+.vscode/

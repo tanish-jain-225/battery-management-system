@@ -788,4 +788,4 @@ Made with ❤️ for EV Battery Safety
 
 [Documentation](./VERCEL_DEPLOYMENT.md) • [Report Bug](issues) • [Request Feature](issues)
 
-</div>
+</div> 

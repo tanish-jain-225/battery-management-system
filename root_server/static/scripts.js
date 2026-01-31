@@ -92,15 +92,41 @@ async function fetchMLInsights() {
     try {
         const a = await fetch("/ml/predict"),
             s = await a.json();
+        
+        // Handle empty database
+        if (s.empty_database) {
+            (e.innerHTML = `<div class="no-data"><div class="no-data-icon">📭</div><h4>Database is Empty</h4><p>${s.message}</p></div>`),
+            (t.innerHTML = "<span>●</span><span>No Data</span>"),
+            (t.className = "status-badge warning");
+            return;
+        }
+        
+        // Handle ML server error
+        if (s.ml_server_error) {
+            (e.innerHTML = `<div class="no-data"><div class="no-data-icon">🔌</div><h4>ML Server Offline</h4><p>${s.message}</p><p style="font-size:.9rem;margin-top:1rem;color:#6c757d">Run: <code>python ml_server/app.py</code></p></div>`),
+            (t.innerHTML = "<span>●</span><span>Offline</span>"),
+            (t.className = "status-badge error");
+            return;
+        }
+        
+        // Handle general errors
+        if (s.error) {
+            (e.innerHTML = `<div class="no-data"><div class="no-data-icon">⚠️</div><h4>Error</h4><p>${s.message}</p></div>`),
+            (t.innerHTML = "<span>●</span><span>Error</span>"),
+            (t.className = "status-badge error");
+            return;
+        }
+        
+        // Success - display ML insights
         if (!s.success || !s.ml_prediction)
-            throw new Error(s.error || "Failed to get ML prediction");
+            throw new Error(s.message || "Failed to get ML prediction");
         (displayMLInsights(s),
             (t.innerHTML = "<span>●</span><span>Live</span>"),
             (t.className = "status-badge success"),
             (mlTimerSeconds = 0));
     } catch (a) {
         (console.error("Error fetching ML insights:", a),
-            (e.innerHTML = `<div class="no-data"><div class="no-data-icon">⚠️</div><h4>Error Loading ML Insights</h4><p>${a.message}</p><p style="font-size:.9rem;margin-top:1rem">Make sure the ML server is running on port 8000</p></div>`),
+            (e.innerHTML = `<div class="no-data"><div class="no-data-icon">⚠️</div><h4>Error Loading ML Insights</h4><p>${a.message}</p></div>`),
             (t.innerHTML = "<span>●</span><span>Error</span>"),
             (t.className = "status-badge error"));
     }

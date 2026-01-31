@@ -247,9 +247,12 @@ def get_ml_prediction():
 
         if not latest:
             return jsonify({
-                'success': False,
-                'message': 'No sensor data available'
-            }), 404
+                'success': True,
+                'empty_database': True,
+                'message': 'Database is empty. Start the sensor server to generate data.',
+                'ml_prediction': None,
+                'sensor_data': None
+            }), 200
 
         # Convert sensor data to ML format
         ml_input = convert_sensor_to_ml_format(latest)
@@ -291,14 +294,20 @@ def get_ml_prediction():
 
     except requests.exceptions.RequestException as e:
         return jsonify({
-            'success': False,
-            'error': f'ML server unavailable: {str(e)}'
-        }), 503
+            'success': True,
+            'ml_server_error': True,
+            'message': 'ML server is not running. Please start it on port 8000.',
+            'ml_prediction': None,
+            'sensor_data': latest if latest else None
+        }), 200
     except Exception as e:
         return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+            'success': True,
+            'error': True,
+            'message': f'Unexpected error: {str(e)}',
+            'ml_prediction': None,
+            'sensor_data': None
+        }), 200
 
 
 @app.route('/ml/analyze', methods=['POST'])

@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EV Battery Monitoring Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --primary-color: #667eea;
+        --secondary-color: #764ba2;
+        --success-color: #16a34a;
+        --warning-color: #ea580c;
+        --danger-color: #dc2626;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--primary-gradient);
+        min-height: 100vh;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        padding: 1rem;
+      }
+      .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .main-header {
+        color: #fff;
+        text-align: center;
+        margin-bottom: 2rem;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+      }
+      .main-header h1 {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+      .main-header .subtitle {
+        font-size: clamp(0.9rem, 2vw, 1.1rem);
+        opacity: 0.95;
+      }
+      .tab-navigation {
+        background: #fff;
+        border-radius: 12px;
+        padding: 0.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .tab-btn {
+        flex: 1;
+        min-width: 150px;
+        padding: 1rem;
+        border: none;
+        background: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+        font-size: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      .tab-btn:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+      }
+      .tab-btn.active {
+        background: var(--primary-gradient);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .stat-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+      .stat-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+      }
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        line-height: 1;
+      }
+      .stat-unit {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-left: 0.25rem;
+      }
+      .control-panel {
+        background: #fff;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .control-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      .btn {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+      }
+      .btn-primary {
+        background: var(--primary-color);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: var(--secondary-color);
+        transform: scale(1.05);
+      }
+      .btn-secondary {
+        background: #6c757d;
+        color: #fff;
+      }
+      .btn-secondary:hover {
+        background: #5a6268;
+      }
+      .btn-success {
+        background: var(--success-color);
+        color: #fff;
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .status-badge.success {
+        background: #d1fae5;
+        color: var(--success-color);
+      }
+      .status-badge.warning {
+        background: #fed7aa;
+        color: var(--warning-color);
+      }
+      .status-badge.error {
+        background: #fee2e2;
+        color: var(--danger-color);
+      }
+      .table-container {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      }
+      .table-wrapper {
+        max-height: 600px;
+        overflow-y: auto;
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      thead th {
+        background: var(--primary-gradient);
+        color: #fff;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      tbody td {
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid #e9ecef;
+      }
+      tbody tr:hover {
+        background: #f8f9fa;
+      }
+      .ml-header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        align-items: center;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #e9ecef;
+        margin-bottom: 1.5rem;
+      }
+      .prediction-emoji {
+        font-size: 4rem;
+        line-height: 1;
+      }
+      .prediction-info {
+        flex: 1;
+        min-width: 250px;
+      }
+      .prediction-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 0.5rem;
+      }
+      .severity-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+      }
+      .severity-CRITICAL {
+        background: #dc2626;
+        color: #fff;
+      }
+      .severity-HIGH {
+        background: #ea580c;
+        color: #fff;
+      }
+      .severity-MEDIUM {
+        background: #f59e0b;
+        color: #fff;
+      }
+      .severity-LOW {
+        background: #16a34a;
+        color: #fff;
+      }
+      .confidence-section {
+        margin: 1.5rem 0;
+      }
+      .confidence-bar {
+        height: 40px;
+        background: #e9ecef;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        margin-top: 0.75rem;
+      }
+      .confidence-fill {
+        height: 100%;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: width 0.6s ease;
+      }
+      .action-box {
+        background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+        border-left: 5px solid var(--warning-color);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+      }
+      .action-box h4 {
+        color: #92400e;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+      }
+      .action-box p {
+        color: #78350f;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin: 0;
+      }
+      .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
+      .info-item {
+        text-align: center;
+      }
+      .info-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+      }
+      .info-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #212529;
+      }
+      .probabilities-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+      }
+      .prob-item {
+        margin-bottom: 1rem;
+      }
+      .prob-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+      }
+      .prob-label {
+        font-weight: 600;
+        color: #374151;
+      }
+      .prob-value {
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+      .prob-bar {
+        height: 10px;
+        background: #e9ecef;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      .prob-bar-fill {
+        height: 100%;
+        background: var(--primary-gradient);
+        transition: width 0.6s ease;
+      }
+      @media (max-width: 768px) {
+        body {
+          padding: 0.5rem;
+        }
+        .card {
+          padding: 1rem;
+        }
+        .stats-grid {
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 0.75rem;
+        }
+        .stat-value {
+          font-size: 1.5rem;
+        }
+        .prediction-emoji {
+          font-size: 3rem;
+        }
+        .prediction-title {
+          font-size: 1.4rem;
+        }
+        .control-panel {
+          padding: 0.75rem;
+        }
+        .ml-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .info-grid {
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: 0.75rem;
+          padding: 1rem;
+        }
+        thead th,
+        tbody td {
+          padding: 0.6rem;
+          font-size: 0.85rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+        .tab-btn {
+          min-width: 100%;
+        }
+        .control-group {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+      .spinner {
+        border: 4px solid #f3f4f6;
+        border-top: 4px solid var(--primary-color);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 2rem auto;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .no-data {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+      }
+      .no-data-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <header class="main-header">
+        <h1>🔋 EV Battery Monitoring Dashboard</h1>
+        <p class="subtitle">
+          Real-time Battery Health Monitoring & ML-Powered Predictions
+        </p>
+      </header>
+      <div class="tab-navigation">
+        <button class="tab-btn active" onclick="switchTab('raw-data')">
+          <span>📊</span><span>Raw Data</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('ml-insights')">
+          <span>🤖</span><span>ML Insights</span>
+        </button>
+      </div>
+      <div id="raw-data" class="tab-content active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Records</div>
+            <div class="stat-value" id="totalRecords">-</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Avg Voltage</div>
+            <div class="stat-value" id="avgVoltage">
+              -<span class="stat-unit">V</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Avg Current</div>
+            <div class="stat-value" id="avgCurrent">
+              -<span class="stat-unit">A</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Avg Temp</div>
+            <div class="stat-value" id="avgTemp">
+              -<span class="stat-unit">°C</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-panel">
+          <div class="control-group">
+            <button class="btn btn-primary" onclick="fetchData()">
+              🔄 Refresh Data
+            </button>
+            <button class="btn btn-secondary" onclick="exportData()">
+              📥 Export CSV
+            </button>
+          </div>
+          <div class="control-group">
+            <span class="status-badge success" id="dataStatus"
+              ><span>●</span><span>Live</span></span
+            >
+            <span style="color: #6c757d; font-size: 0.9rem" id="dataTimer"
+              >Updated just now</span
+            >
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="section-title">📍 Latest Sensor Reading</h3>
+          <div id="latestReading"><div class="spinner"></div></div>
+        </div>
+        <div class="table-container">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Sensor ID</th>
+                  <th>Voltage (V)</th>
+                  <th>Current (A)</th>
+                  <th>Temperature (°C)</th>
+                  <th>Core Temp (°C)</th>
+                  <th>Surface Temp (°C)</th>
+                  <th>SOC (%)</th>
+                  <th>Humidity (%)</th>
+                  <th>Location</th>
+                </tr>
+              </thead>
+              <tbody id="dataTableBody">
+                <tr>
+                  <td colspan="10" class="no-data">
+                    <div class="spinner"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div id="ml-insights" class="tab-content">
+        <div class="control-panel">
+          <div class="control-group">
+            <button class="btn btn-primary" onclick="fetchMLInsights()">
+              🔄 Refresh Prediction
+            </button>
+          </div>
+          <div class="control-group">
+            <span class="status-badge success" id="mlStatus"
+              ><span>●</span><span>Live</span></span
+            >
+            <span style="color: #6c757d; font-size: 0.9rem" id="mlTimer"
+              >Updated just now</span
+            >
+          </div>
+        </div>
+        <div class="card">
+          <div id="mlInsightContainer"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      let currentTab = "raw-data",
+        autoRefreshInterval = null,
+        dataTimerSeconds = 0,
+        mlTimerSeconds = 0;
+      function switchTab(e) {
+        ((currentTab = e),
+          document.querySelectorAll(".tab-btn").forEach((e) => {
+            e.classList.remove("active");
+          }),
+          event.target.closest(".tab-btn").classList.add("active"),
+          document.querySelectorAll(".tab-content").forEach((e) => {
+            e.classList.remove("active");
+          }),
+          document.getElementById(e).classList.add("active"),
+          autoRefreshInterval && clearInterval(autoRefreshInterval),
+          "raw-data" === e
+            ? (fetchData(),
+              fetchStats(),
+              startDataTimer(),
+              (autoRefreshInterval = setInterval(() => {
+                (fetchData(), fetchStats());
+              }, 5e3)))
+            : "ml-insights" === e &&
+              (fetchMLInsights(),
+              startMLTimer(),
+              (autoRefreshInterval = setInterval(() => {
+                fetchMLInsights();
+              }, 1e4))));
+      }
+      async function fetchData() {
+        const e = document.getElementById("dataTableBody"),
+          t = document.getElementById("dataStatus");
+        ((t.innerHTML = "<span>●</span><span>Loading...</span>"),
+          (t.className = "status-badge warning"));
+        try {
+          const a = await fetch("/data"),
+            s = await a.json();
+          s.success && s.data && s.data.length > 0
+            ? (displayDataTable(s.data),
+              displayLatestReading(s.data[0]),
+              (t.innerHTML = "<span>●</span><span>Live</span>"),
+              (t.className = "status-badge success"),
+              (dataTimerSeconds = 0))
+            : ((e.innerHTML =
+                '<tr><td colspan="10" class="no-data"><div class="no-data-icon">📭</div><p>No data available</p></td></tr>'),
+              (t.innerHTML = "<span>●</span><span>No Data</span>"),
+              (t.className = "status-badge warning"));
+        } catch (a) {
+          (console.error("Error fetching data:", a),
+            (e.innerHTML = `<tr><td colspan="10" class="no-data"><div class="no-data-icon">⚠️</div><p>Error: ${a.message}</p></td></tr>`),
+            (t.innerHTML = "<span>●</span><span>Error</span>"),
+            (t.className = "status-badge error"));
+        }
+      }
+      function displayDataTable(e) {
+        document.getElementById("dataTableBody").innerHTML = e
+          .map(
+            (e) =>
+              `<tr><td>${formatTimestamp(e.timestamp)}</td><td><strong>${e.sensor_id || "N/A"}</strong></td><td>${formatNumber(e.voltage)} V</td><td>${formatNumber(e.current)} A</td><td>${formatNumber(e.temperature)} °C</td><td>${formatNumber(e.core_temp)} °C</td><td>${formatNumber(e.surface_temp)} °C</td><td>${formatNumber(e.soc)}%</td><td>${formatNumber(e.humidity)}%</td><td>${e.battery_location || "N/A"}</td></tr>`,
+          )
+          .join("");
+      }
+      function displayLatestReading(e) {
+        document.getElementById("latestReading").innerHTML =
+          `<div class="info-grid"><div class="info-item"><div class="info-label">Sensor ID</div><div class="info-value">${e.sensor_id || "N/A"}</div></div><div class="info-item"><div class="info-label">Voltage</div><div class="info-value">${formatNumber(e.voltage)} V</div></div><div class="info-item"><div class="info-label">Current</div><div class="info-value">${formatNumber(e.current)} A</div></div><div class="info-item"><div class="info-label">Temperature</div><div class="info-value">${formatNumber(e.temperature)} °C</div></div><div class="info-item"><div class="info-label">Core Temp</div><div class="info-value">${formatNumber(e.core_temp)} °C</div></div><div class="info-item"><div class="info-label">Surface Temp</div><div class="info-value">${formatNumber(e.surface_temp)} °C</div></div><div class="info-item"><div class="info-label">SOC</div><div class="info-value">${formatNumber(e.soc)}%</div></div><div class="info-item"><div class="info-label">Humidity</div><div class="info-value">${formatNumber(e.humidity)}%</div></div><div class="info-item"><div class="info-label">Heat Index</div><div class="info-value">${formatNumber(e.heat_index)} °C</div></div><div class="info-item"><div class="info-label">Location</div><div class="info-value" style="font-size:.9rem">${e.battery_location || "N/A"}</div></div><div class="info-item"><div class="info-label">Ambient Temp</div><div class="info-value">${formatNumber(e.ambient_temp)} °C</div></div><div class="info-item"><div class="info-label">Timestamp</div><div class="info-value" style="font-size:.85rem">${formatTimestamp(e.timestamp)}</div></div></div>`;
+      }
+      async function fetchStats() {
+        try {
+          const e = await fetch("/data/stats"),
+            t = await e.json();
+          if (t.success && t.stats) {
+            const e = t.stats;
+            ((document.getElementById("totalRecords").textContent =
+              e.total_records || 0),
+              (document.getElementById("avgVoltage").innerHTML =
+                `${formatNumber(e.avg_voltage)}<span class="stat-unit">V</span>`),
+              (document.getElementById("avgCurrent").innerHTML =
+                `${formatNumber(e.avg_current)}<span class="stat-unit">A</span>`),
+              (document.getElementById("avgTemp").innerHTML =
+                `${formatNumber(e.avg_temperature)}<span class="stat-unit">°C</span>`));
+          }
+        } catch (e) {
+          console.error("Error fetching stats:", e);
+        }
+      }
+      async function fetchMLInsights() {
+        const e = document.getElementById("mlInsightContainer"),
+          t = document.getElementById("mlStatus");
+        ((e.innerHTML = '<div class="spinner"></div>'),
+          (t.innerHTML = "<span>●</span><span>Analyzing...</span>"),
+          (t.className = "status-badge warning"));
+        try {
+          const a = await fetch("/ml/predict"),
+            s = await a.json();
+          if (!s.success || !s.ml_prediction)
+            throw new Error(s.error || "Failed to get ML prediction");
+          (displayMLInsights(s),
+            (t.innerHTML = "<span>●</span><span>Live</span>"),
+            (t.className = "status-badge success"),
+            (mlTimerSeconds = 0));
+        } catch (a) {
+          (console.error("Error fetching ML insights:", a),
+            (e.innerHTML = `<div class="no-data"><div class="no-data-icon">⚠️</div><h4>Error Loading ML Insights</h4><p>${a.message}</p><p style="font-size:.9rem;margin-top:1rem">Make sure the ML server is running on port 8000</p></div>`),
+            (t.innerHTML = "<span>●</span><span>Error</span>"),
+            (t.className = "status-badge error"));
+        }
+      }
+      function displayMLInsights(e) {
+        const t = document.getElementById("mlInsightContainer"),
+          a = e.ml_prediction,
+          s = e.sensor_data,
+          n =
+            "object" == typeof a.solution
+              ? a.solution
+              : {
+                  action: a.solution || "No recommendation available",
+                  severity: "MEDIUM",
+                  emoji: "❓",
+                },
+          r = { HIGH: "LOW", MEDIUM: "MEDIUM", LOW: "HIGH" },
+          o = n.severity || r[a.reliability] || "MEDIUM",
+          i =
+            n.emoji ||
+            ("CRITICAL" === o
+              ? "🚨"
+              : "HIGH" === o
+                ? "⚠️"
+                : "MEDIUM" === o
+                  ? "🔶"
+                  : "✅");
+        let d = `<div class="ml-header"><div class="prediction-emoji">${i}</div><div class="prediction-info"><div class="prediction-title">BATTERY STATUS: ${a.prediction || "UNKNOWN"}</div><span class="severity-badge severity-${o}">${o} PRIORITY</span></div></div><div class="confidence-section"><div class="section-title">📈 Prediction Confidence</div><div class="confidence-bar"><div class="confidence-fill" style="width:${a.confidence || 0}%">${formatNumber(a.confidence)}%</div></div><div style="display:flex;justify-content:space-between;margin-top:.5rem;font-size:.9rem;color:#6c757d"><span>Model Reliability: <strong>${a.reliability || "N/A"}</strong></span><span>Model Accuracy: <strong>${formatNumber(100 * a.model_accuracy)}%</strong></span></div></div><div class="action-box"><h4>💡 Recommended Action</h4><p>${n.action}</p></div><div class="section-title">🔍 Sensor Context</div><div class="info-grid"><div class="info-item"><div class="info-label">Sensor ID</div><div class="info-value">${s.sensor_id || "N/A"}</div></div><div class="info-item"><div class="info-label">Voltage</div><div class="info-value">${formatNumber(s.voltage)} V</div></div><div class="info-item"><div class="info-label">Current</div><div class="info-value">${formatNumber(s.current)} A</div></div><div class="info-item"><div class="info-label">Temperature</div><div class="info-value">${formatNumber(s.temperature)} °C</div></div><div class="info-item"><div class="info-label">Core Temp</div><div class="info-value">${formatNumber(s.core_temp)} °C</div></div><div class="info-item"><div class="info-label">SOC</div><div class="info-value">${formatNumber(s.soc)}%</div></div><div class="info-item"><div class="info-label">Humidity</div><div class="info-value">${formatNumber(s.humidity)}%</div></div></div>`;
+        (a.probabilities &&
+          Object.keys(a.probabilities).length > 0 &&
+          (d += `<div class="probabilities-section"><div class="section-title">📊 Class Probabilities</div>${Object.entries(
+            a.probabilities,
+          )
+            .map(
+              ([e, t]) =>
+                `<div class="prob-item"><div class="prob-header"><span class="prob-label">${e}</span><span class="prob-value">${formatNumber(t)}%</span></div><div class="prob-bar"><div class="prob-bar-fill" style="width:${t}%"></div></div></div>`,
+            )
+            .join("")}</div>`),
+          (t.innerHTML = d));
+      }
+      function exportData() {
+        fetch("/data")
+          .then((e) => e.json())
+          .then((e) => {
+            if (e.success && e.data) {
+              const t = convertToCSV(e.data);
+              downloadCSV(t, "battery_data.csv");
+            }
+          })
+          .catch((e) => {
+            (console.error("Error exporting data:", e),
+              alert("Failed to export data"));
+          });
+      }
+      function convertToCSV(e) {
+        if (0 === e.length) return "";
+        const t = Object.keys(e[0]),
+          a = e.map((e) =>
+            t
+              .map((t) => {
+                const a = e[t];
+                return "string" == typeof a ? `"${a}"` : a;
+              })
+              .join(","),
+          );
+        return [t.join(","), ...a].join("\n");
+      }
+      function downloadCSV(e, t) {
+        const a = new Blob([e], { type: "text/csv" }),
+          s = window.URL.createObjectURL(a),
+          n = document.createElement("a");
+        ((n.href = s),
+          (n.download = t),
+          document.body.appendChild(n),
+          n.click(),
+          document.body.removeChild(n),
+          window.URL.revokeObjectURL(s));
+      }
+      function startDataTimer() {
+        ((dataTimerSeconds = 0),
+          setInterval(() => {
+            if ("raw-data" === currentTab) {
+              dataTimerSeconds++;
+              const e = document.getElementById("dataTimer");
+              e && (e.textContent = `Updated ${dataTimerSeconds}s ago`);
+            }
+          }, 1e3));
+      }
+      function startMLTimer() {
+        ((mlTimerSeconds = 0),
+          setInterval(() => {
+            if ("ml-insights" === currentTab) {
+              mlTimerSeconds++;
+              const e = document.getElementById("mlTimer");
+              e && (e.textContent = `Updated ${mlTimerSeconds}s ago`);
+            }
+          }, 1e3));
+      }
+      function formatNumber(e) {
+        return null == e ? "N/A" : "number" == typeof e ? e.toFixed(2) : e;
+      }
+      function formatTimestamp(e) {
+        return e
+          ? new Date(e).toLocaleString("en-US", {
+              month: "short",
+              day: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            })
+          : "N/A";
+      }
+      function getSeverity(e) {
+        return (
+          {
+            Alarm: "CRITICAL",
+            Warning: "HIGH",
+            Watch: "MEDIUM",
+            Normal: "LOW",
+          }[e] || "MEDIUM"
+        );
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        (fetchData(),
+          fetchStats(),
+          startDataTimer(),
+          (autoRefreshInterval = setInterval(() => {
+            "raw-data" === currentTab && (fetchData(), fetchStats());
+          }, 5e3)));
+      });
+    </script>
+  </body>
+</html>

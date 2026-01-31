@@ -1,0 +1,54 @@
+{
+  "accuracy": 0.995,
+  "f1_score": 0.99490254943444,
+  "n_features": 31,
+  "classes": [
+    "Alarm",
+    "Warning",
+    "Watch"
+  ],
+  "model_type": "GradientBoostingClassifier",
+  "trained_at": "2026-01-31T17:25:25.750083",
+  "top_features": [
+    {
+      "feature": "MoistureDetected",
+      "importance": 0.2960579617391873
+    },
+    {
+      "feature": "ThermalRisk",
+      "importance": 0.23633855749842467
+    },
+    {
+      "feature": "InternalResistance_mOhm",
+      "importance": 0.13472031849999933
+    },
+    {
+      "feature": "MaxTemp_C",
+      "importance": 0.056468297696397864
+    },
+    {
+      "feature": "AvgTemp_C",
+      "importance": 0.05198655040243386
+    },
+    {
+      "feature": "TempDelta",
+      "importance": 0.048383396775296766
+    },
+    {
+      "feature": "MinTemp_C",
+      "importance": 0.041727028379197145
+    },
+    {
+      "feature": "DemandCurrent_A",
+      "importance": 0.013943028233679381
+    },
+    {
+      "feature": "ChargePower_kW",
+      "importance": 0.013271656973138587
+    },
+    {
+      "feature": "ChargeCurrent_A",
+      "importance": 0.011474380350593201
+    }
+  ]
+}

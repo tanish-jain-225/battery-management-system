@@ -1,15 +1,19 @@
 """
 EV Battery Thermal Runaway Prediction Model Training
 =====================================================
-Advanced ML pipeline with ensemble methods, feature engineering,
-and comprehensive model selection for optimal accuracy.
+ML pipeline with ensemble methods, feature engineering and comprehensive model selection for optimal accuracy.
 """
 
+# Standard Libraries
 import pandas as pd
 import numpy as np
+
+# ML Libraries
 import joblib
 import os
 import json
+
+# All other imports
 from datetime import datetime
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, StratifiedKFold
 from sklearn.ensemble import (
@@ -27,6 +31,8 @@ from sklearn.metrics import (
     precision_recall_fscore_support
 )
 from sklearn.pipeline import Pipeline
+
+# Suppress warnings for cleaner output
 import warnings
 warnings.filterwarnings('ignore')
 

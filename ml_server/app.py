@@ -329,4 +329,4 @@ if __name__ == '__main__':
     print()
     print("✓ Model loaded successfully!")
     print()
-    app.run(port=PORT, debug=True)
+    app.run(port=PORT, debug=False)

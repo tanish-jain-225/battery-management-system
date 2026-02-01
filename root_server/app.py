@@ -293,12 +293,24 @@ def get_ml_prediction():
             }), 500
 
     except requests.exceptions.RequestException as e:
+        sensor_data = None
+        if latest:
+            sensor_data = {
+                'sensor_id': latest.get('sensor_id'),
+                'humidity': latest.get('humidity'),
+                'temperature': latest.get('temperature'),
+                'core_temp': latest.get('core_temp'),
+                'voltage': latest.get('voltage'),
+                'current': latest.get('current'),
+                'soc': latest.get('soc'),
+                'timestamp': latest.get('timestamp').isoformat() if isinstance(latest.get('timestamp'), datetime) else latest.get('timestamp')
+            }
         return jsonify({
             'success': True,
             'ml_server_error': True,
             'message': 'ML server is not running. Please start it on port 8000.',
             'ml_prediction': None,
-            'sensor_data': latest if latest else None
+            'sensor_data': sensor_data
         }), 200
     except Exception as e:
         return jsonify({
